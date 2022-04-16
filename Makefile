@@ -5,11 +5,11 @@ CFLAGS = -g -std=c11 -pedantic -Wall -Wextra
 all: ipk-sniffer 
 
 ##########################################################################
-ipk-sniffer: second.o ipk-sniffer.h ipk-sniffer.c
-	gcc $(CFLAGS) second.o ipk-sniffer.c -o ipk-sniffer
+ipk-sniffer: args.o ipk-sniffer.h ipk-sniffer.c
+	gcc $(CFLAGS) args.o ipk-sniffer.c -o ipk-sniffer
 
-second.o: second.c second.h 
-	gcc $(CFLAGS) -c second.c -o second.o
+args.o: args.c args.h 
+	gcc $(CFLAGS) -c args.c -o args.o
 
 clean:
 	rm *.o main

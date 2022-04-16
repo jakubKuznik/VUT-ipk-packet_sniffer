@@ -4,12 +4,12 @@
 // Compiled:    gcc 9.9.3.0
 // Main file 
 
-
 #include "ipk-sniffer.h"
 
 
-int main(int argc, char *argv[]){
-    printf("hello world\n");
-    print_something();
+int main(int argc, char *argv[]) {
+
+    parse_args(argc, argv);
     return 0;
 }
+
