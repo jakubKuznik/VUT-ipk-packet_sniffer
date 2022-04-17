@@ -12,5 +12,14 @@
 
 /**
  * Print all interfaces in system
+ * exit with -3 if error 
  */
 void print_interfaces();
+
+
+/**
+ * Check if interface exist 
+ *  return true if yes 
+ *  return false if not or error  
+ */
+bool interface_exist(char *int_name);

@@ -14,3 +14,9 @@
  * Get throught arguments and store them to settings struct  
  */
 void parse_args(int argc, char *argv[], settings *sett);
+
+
+/**
+ * Check if string is digit  
+ */
+bool is_number(char *str);

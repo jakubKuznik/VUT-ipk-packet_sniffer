@@ -21,8 +21,6 @@ int main(int argc, char *argv[]) {
     parse_args(argc, argv, sett);
     debug_sett(sett);
 
-    print_interfaces();
-
     
     return 0;
 
@@ -32,6 +30,7 @@ error_malloc:
     return 1;
 
 }
+
 
 // TODO smazat 
 void debug_sett(settings *sett){
