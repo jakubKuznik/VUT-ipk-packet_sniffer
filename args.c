@@ -18,7 +18,13 @@ void parse_args(int argc, char *argv[], settings *sett){
     
     bool i_once = false;
     bool p_once = false;
-    bool n_once = false; 
+    bool n_once = false;
+    
+    // no arguments // just print interfaces  
+    if (argc == 1){
+        print_interfaces();
+        exit(0);
+    }
 
     for (int i = 1; i < argc; i++){
         
@@ -33,13 +39,15 @@ void parse_args(int argc, char *argv[], settings *sett){
             if (i_once == true)
                 goto error_args;
 
-            if (i+1 < argc){ // store interface to settings struct 
-                strncpy(sett->interface, argv[++i], 255);
+            if (i+1 < argc){ // store interface to settings struct
+                 
+                strncpy(sett->interface, argv[++i], INTERFACE_NAME_MAX);
                 continue;
             }
             else{ // just print interfaces 
                 //printf("d");
-                print_interfaces(); 
+                print_interfaces();
+                exit(0);
             }
         }
         // port

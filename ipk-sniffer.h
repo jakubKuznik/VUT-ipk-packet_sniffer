@@ -22,6 +22,8 @@ typedef struct settings settings;
 #include "args.h"
 #include "interfaces.h"
 
+#define INTERFACE_NAME_MAX 256
+
 /**
  * Setting struct declare how'll program behave 
  */
@@ -33,7 +35,8 @@ struct settings{
     bool icmp;           // icmp enable 
     bool udp;            // udp enable 
     bool tcp;            // tcp enable 
-    char interface[255]; // name of interface where packet will be sniffed 
+                // name of interface where packet will be sniffed 
+    char interface[INTERFACE_NAME_MAX]; 
     int port;            // Accept packet only on given port
                          // -1 if all ports 
 };
