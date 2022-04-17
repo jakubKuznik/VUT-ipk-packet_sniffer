@@ -20,6 +20,7 @@ typedef struct settings settings;
 
 
 #include "args.h"
+#include "interfaces.h"
 
 /**
  * Setting struct declare how'll program behave 

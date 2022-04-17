@@ -38,8 +38,8 @@ void parse_args(int argc, char *argv[], settings *sett){
                 continue;
             }
             else{ // just print interfaces 
-                printf("tune");
-
+                //printf("d");
+                print_interfaces(); 
             }
         }
         // port

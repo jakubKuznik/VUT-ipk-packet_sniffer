@@ -21,6 +21,8 @@ int main(int argc, char *argv[]) {
     parse_args(argc, argv, sett);
     debug_sett(sett);
 
+    print_interfaces();
+
     return 0;
 
 

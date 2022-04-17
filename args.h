@@ -8,8 +8,7 @@
 #pragma once
 
 #include "ipk-sniffer.h"
-
-
+#include "interfaces.h"
 
 /**
  * Get throught arguments and store them to settings struct  
