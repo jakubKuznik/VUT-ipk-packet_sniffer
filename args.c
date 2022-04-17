@@ -24,6 +24,7 @@ void parse_args(int argc, char *argv[], settings *sett){
 
     // set default struct values 
     sett->port = -1;
+    sett->n    = 1;
 
 
     // no arguments // just print interfaces  
@@ -65,6 +66,7 @@ void parse_args(int argc, char *argv[], settings *sett){
         else if (strcmp(argv[i], "-p") == 0) {
             if (p_once == true)
                 goto error_args;
+            p_once = true;
             
             if (i+1 < argc){ // store port number to settings struct
                 if(is_number(argv[++i]) == false)
@@ -75,39 +77,47 @@ void parse_args(int argc, char *argv[], settings *sett){
             else{ // just print interfaces 
                 goto error_args;
             }
-            
-            p_once = true;
-            fprintf(stderr,"port\n");
         }
         // protocol tcp 
         else if ((strcmp(argv[i], "--tcp") == 0) || (strcmp(argv[i], "-t") == 0)) {
-            fprintf(stderr,"tcp\n");
             protocol_specified = true;
+            sett->tcp = true;
         }
         // protocol udp 
         else if ((strcmp(argv[i], "--udp") == 0) || (strcmp(argv[i], "-u") == 0)) {
-            fprintf(stderr,"udp\n");
             protocol_specified = true;
+            sett->udp = true;
         }
         // protocol arp
         else if (strcmp(argv[i], "--arp") == 0) {
-            fprintf(stderr,"arp\n");
             protocol_specified = true;
+            sett->arp = true;
         }
         // protocol icmp 
         else if (strcmp(argv[i], "--icmp") == 0) {
-            fprintf(stderr,"icmp\n");
             protocol_specified = true;
+            sett->icmp = true;
         }
         // number of packets
         // -n num 
         else if (strcmp(argv[i], "-n") == 0) {
-            fprintf(stderr,"icmp\n");
+            if (n_once == true)
+                goto error_args;
+            n_once = true;
+            
+            if (i+1 < argc){ // store port number to settings struct
+                if(is_number(argv[++i]) == false)
+                    goto error_port;
+                sett->n = atoi(argv[i]);
+                continue;
+            }
+            else{ // just print interfaces 
+                goto error_args;
+            }
         }
         // unknown 
         else {
-            fprintf(stderr, "Unknown parram\n");
-            exit(0);
+            goto error_args;
         }
     }
 
@@ -124,7 +134,7 @@ void parse_args(int argc, char *argv[], settings *sett){
     return;
 
 error_port:
-    fprintf(stderr, "Port is not an number\n");
+    fprintf(stderr, "Expect an number\n");
     exit(2);
 
 error_interface:
