@@ -1,7 +1,7 @@
 CC = gcc
 LD = gcc
 
-CFLAGS = -g -std=c11 -pedantic -Wall -Wextra
+CFLAGS = -g -std=c11 -pedantic -Wall -Wextra -lpcap -D_BSD_SOURCE -D_DEFAULT_SOURCE
 all: ipk-sniffer 
 
 ##########################################################################

@@ -5,11 +5,15 @@
 // File description
 
 #pragma once
-
+// normal libraries 
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdbool.h>
+
+// network libraries
+#include <pcap.h>
+#include <arpa/inet.h>
 
 // struct typedef  
 typedef struct settings settings;
