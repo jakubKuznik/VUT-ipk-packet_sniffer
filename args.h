@@ -11,5 +11,7 @@
 
 
 
-void parse_args(int argc, char *argv[]);
-
+/**
+ * Get throught arguments and store them to settings struct  
+ */
+void parse_args(int argc, char *argv[], settings *sett);
