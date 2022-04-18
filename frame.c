@@ -42,7 +42,7 @@ void handle_frame(pcap_t *sniff_int){
     char                addres_string[INET_ADDRSTRLEN];
 
     frame = pcap_next(sniff_int, &pac_header);
-    eth_header = (struct ether_arp *)frame;
+    eth_header = (struct ether_header *)frame;
 
     printf("\n");
     // check if we have ip packet
@@ -73,9 +73,9 @@ void handle_frame(pcap_t *sniff_int){
 
 
     print_timestap(pac_header.ts);
-    printf("src MAC: xxx\n");
-    printf("dst MAC: xxx\n");
-    printf("frame lenght: xxx\n");
+    print_mac(eth_header->ether_shost, SRC);
+    print_mac(eth_header->ether_dhost, DST);
+    printf("frame lenght: %d\n",pac_header.len);
     printf("src IP: xxx\n");
     printf("dst IP: xxx\n");
     printf("src port: xxx\n");
@@ -84,6 +84,27 @@ void handle_frame(pcap_t *sniff_int){
     printf("\noffset_vypsaných_bajtů:  výpis_bajtů_hexa výpis_bajtů_ASCII\n");
 
 }
+
+/**
+ * Print mac addres from u_char ether[6] 
+ * set src_des to SRC or DST 
+ */
+void print_mac(u_char ether[6], int src_des){
+    if (src_des == SRC){
+        printf("src MAC: ");
+
+    }
+    else if (src_des == DST){
+        printf("dst MAC: ");
+
+    }
+    printf("%02x:%02x:%02x:%02x:%02x:%02x\n",
+    (unsigned char) ether[0], (unsigned char) ether[1],
+    (unsigned char) ether[2], (unsigned char) ether[3],
+    (unsigned char) ether[4], (unsigned char) ether[5]);
+
+}
+
 
 
 /**

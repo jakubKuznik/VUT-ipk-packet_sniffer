@@ -13,6 +13,9 @@
 #define MAX_FRAME_SIZE 1518
 #define ETH_HEAD 14
 
+#define SRC 0
+#define DST 1
+
 /**
  * 
  * Read one frame and print it in 
@@ -44,3 +47,9 @@ void handle_frame(pcap_t *sniff_int);
  * Print time in RFC
  */
 void print_timestap(struct timeval ts);
+
+/**
+ * Print mac addres from u_char ether[6] 
+ * set src_des to SRC or DST 
+ */
+void print_mac(u_char ether[6], int src_des);

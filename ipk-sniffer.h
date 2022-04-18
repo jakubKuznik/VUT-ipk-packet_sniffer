@@ -29,6 +29,7 @@ typedef struct settings settings;
 
 #include "args.h"
 #include "interfaces.h"
+#include "frame.h"
 
 #define INTERFACE_NAME_MAX 256
 
