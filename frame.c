@@ -34,14 +34,14 @@
  */
 void handle_frame(pcap_t *sniff_int){
     const u_char        *frame;          // packet
-    struct pcap_pkthdr  header;          // packet header
+    struct pcap_pkthdr  pac_header;          // packet header
     struct ether_header *eth_header;     // ethernet  
     struct ip           *ip_header;    
     struct tcphdr       *tcp_header; 
     struct udphdr       *udp_header; 
     char                addres_string[INET_ADDRSTRLEN];
 
-    frame = pcap_next(sniff_int, &header);
+    frame = pcap_next(sniff_int, &pac_header);
     eth_header = (struct ether_arp *)frame;
 
     printf("\n");
@@ -58,16 +58,78 @@ void handle_frame(pcap_t *sniff_int){
     else{
         fprintf(stderr,"... unknown ...\n");
     }
-
+    
     // icmp arp ip ipv6
     ip_header = (struct ip*)(frame + ETH_HEAD);
 
+
     
-    fprintf(stderr,"header: %d\n",header.len);
-    fprintf(stderr,"ts: %ld\n",header.ts.tv_usec);
-    fprintf(stderr,"caplen: %d\n",header.caplen); //delka frameu v bytech
+    fprintf(stderr,"header: %d\n",pac_header.len);
+    fprintf(stderr,"ts: %ld\n",pac_header.ts.tv_usec);
+    fprintf(stderr,"caplen: %d\n",pac_header.caplen); //delka frameu v bytech
     fprintf(stderr,"....\n");
     fprintf(stderr,"%s\n",inet_ntop(AF_INET, &ip_header->ip_dst, addres_string, sizeof(addres_string)));
     fprintf(stderr,"....\n");
 
+
+    print_timestap(pac_header.ts);
+    printf("src MAC: xxx\n");
+    printf("dst MAC: xxx\n");
+    printf("frame lenght: xxx\n");
+    printf("src IP: xxx\n");
+    printf("dst IP: xxx\n");
+    printf("src port: xxx\n");
+    printf("dst port: xxx\n");
+
+    printf("\noffset_vypsaných_bajtů:  výpis_bajtů_hexa výpis_bajtů_ASCII\n");
+
+}
+
+
+/**
+ * Print time in RFC
+ *  inspiration from:
+ *    https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc 
+ */
+void print_timestap(struct timeval ts){
+    time_t time = (time_t)ts.tv_sec; 
+
+    struct tm *tm;
+    int off_sign;
+    int off;
+
+    if ((tm = localtime(&time)) == NULL) {
+        return;
+    }
+
+    off_sign = '+';
+    off = (int) tm->tm_gmtoff;
+    if (tm->tm_gmtoff < 0) {
+        off_sign = '-';
+        off = -off;
+    }
+
+    // get three milisecond digits
+    int msec[100]; int i = 0;
+    for (; ts.tv_usec; i++)
+    {
+        msec[i] = (int)ts.tv_usec % 10;
+        ts.tv_usec /= 10;
+    }
+
+    printf("timestamp: ");
+    if (tm->tm_mon > 9){
+        printf("%d-%d-%dT%02d:%02d:%02d.%d%d%d%c%02d:%02d",
+           tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+           tm->tm_hour, tm->tm_min, tm->tm_sec, msec[i-1], msec[i-2], msec[i-3],
+           off_sign, off / 3600, off % 3600);
+    }
+    else{
+        printf("%d-0%d-%dT%02d:%02d:%02d.%d%d%d%c%02d:%02d",
+           tm->tm_year + 1900, tm->tm_mon + 1, tm->tm_mday,
+           tm->tm_hour, tm->tm_min, tm->tm_sec, msec[i-1], msec[i-2], msec[i-3],
+           off_sign, off / 3600, off % 3600);
+    }
+        
+    printf("\n");
 }

@@ -18,7 +18,7 @@ args.o: args.c args.h
 interfaces.o: interfaces.c interfaces.h 
 	gcc $(CFLAGS) -c interfaces.c -o interfaces.o -lpcap
 
-interfaces.o: frame.c frame.h 
+frame.o: frame.c frame.h 
 	gcc $(CFLAGS) -c frame.c -o frame.o -lpcap
 
 clean:

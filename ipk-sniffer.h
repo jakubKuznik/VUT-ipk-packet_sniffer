@@ -11,6 +11,8 @@
 #include <string.h>
 #include <stdbool.h>
 #include <ctype.h>
+#include <sys/time.h>
+#include <time.h>
 
 // network libraries
 #include <pcap.h>
@@ -29,7 +31,6 @@ typedef struct settings settings;
 #include "interfaces.h"
 
 #define INTERFACE_NAME_MAX 256
-#define ETH_HEAD 14
 
 /**
  * Setting struct declare how'll program behave 

@@ -39,3 +39,8 @@
  * 0x0060:  98 9d b8 c8 00 80 0c 57  61 87 b0 cd 08 80 00 a1  .......W a.......
  */
 void handle_frame(pcap_t *sniff_int);
+
+/**
+ * Print time in RFC
+ */
+void print_timestap(struct timeval ts);
