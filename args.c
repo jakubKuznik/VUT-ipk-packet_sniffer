@@ -15,11 +15,13 @@
  * 
  */
 void parse_args(int argc, char *argv[], settings *sett){
-    
+
+    // check if some args occure more than once  
     bool i_once = false;
     bool p_once = false;
     bool n_once = false;
     
+    // set to true if icmp tcp udp or arp is in args 
     bool protocol_specified = false;
 
     // set default struct values 

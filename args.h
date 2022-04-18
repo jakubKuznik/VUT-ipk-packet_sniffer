@@ -2,7 +2,7 @@
 // File:        args.h
 // Author:      Jakub Kuzník, FIT
 // Compiled:    gcc 9.9.3.0
-// File description
+// args.c header file 
 
 
 #pragma once

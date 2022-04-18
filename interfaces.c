@@ -55,3 +55,35 @@ bool interface_exist(char *int_name){
     pcap_freealldevs(inter_list);
     return false;
 }
+
+/**
+ * Open interface and set *err as erro message 
+ * if open fail exit(2)
+ * if interface does not support ethernet frame exit(2) 
+ */
+pcap_t *open_int(char *err, char *name){
+
+    pcap_t *sniff_int; // interface where packet will be sniffed 
+
+    // set promiscuous mode - all network data packets can be accessed
+    // --- and viewed by all network adapters operating in this mode.
+    sniff_int = pcap_open_live(name, MAX_FRAME_SIZE, true, TIMEOUT, err);
+    if (sniff_int == NULL)
+        goto error_interface;
+    
+    if(pcap_datalink(sniff_int) != DLT_EN10MB)
+        goto error_ether_frame;
+
+
+
+    return sniff_int;
+
+
+error_interface:
+    fprintf(stderr, "Cannot open interface\n");
+    fprintf(stderr, "%s\n",err);
+    exit(2);
+error_ether_frame:
+    fprintf(stderr, "Interface does not support Ethernet frame \n");
+    exit(2);
+}

@@ -10,6 +10,9 @@
 #include <pcap.h>
 #include "ipk-sniffer.h"
 
+#define MAX_FRAME_SIZE 1518
+#define TIMEOUT 1000
+
 /**
  * Print all interfaces in system
  * exit with -3 if error 
@@ -23,3 +26,11 @@ void print_interfaces();
  *  return false if not or error  
  */
 bool interface_exist(char *int_name);
+
+
+/**
+ * Open interface and set *err as erro message 
+ * if open fail exit(2)
+ * if interface does not support ethernet frame exit(2) 
+ */
+pcap_t *open_int(char *err, char *name);

@@ -15,6 +15,7 @@
 // network libraries
 #include <pcap.h>
 #include <arpa/inet.h>
+#include <netinet/if_ether.h> //ethernet and arp frame 
 
 // struct typedef  
 typedef struct settings settings;
