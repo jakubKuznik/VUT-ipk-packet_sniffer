@@ -45,7 +45,7 @@ void handle_frame(pcap_t *sniff_int){
     eth_header = (struct ether_header *)frame;
 
     printf("\n");
-    // check if we have ip packet
+    // check protocol IP include ICMP 
     if (ntohs(eth_header->ether_type) == ETHERTYPE_IP){
         fprintf(stderr,".... ip .....\n");
     }

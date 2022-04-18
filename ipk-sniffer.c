@@ -44,7 +44,6 @@ int main(int argc, char *argv[]) {
 // TODO smazat 
 void debug_sett(settings *sett){
     fprintf(stderr,"...n:         %d\n",sett->n );
-    fprintf(stderr,"...counter:   %d\n",sett->packet_counter);
     fprintf(stderr,"...arp:       %d\n",sett->arp);
     fprintf(stderr,"...icmp:      %d\n",sett->icmp);
     fprintf(stderr,"...udp:       %d\n",sett->udp);

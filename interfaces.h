@@ -10,7 +10,6 @@
 #include <pcap.h>
 #include "ipk-sniffer.h"
 
-#define MAX_FRAME_SIZE 1518
 #define TIMEOUT 1000
 
 /**

@@ -39,7 +39,6 @@ typedef struct settings settings;
 struct settings{
 
     int n;               // number of packet that will be shown
-    int packet_counter;  // number of packets that has been shown 
     bool arp;            // arp enable
     bool icmp;           // icmp enable 
     bool udp;            // udp enable 
