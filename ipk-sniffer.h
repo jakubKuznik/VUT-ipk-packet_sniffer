@@ -16,6 +16,10 @@
 #include <pcap.h>
 #include <arpa/inet.h>
 #include <netinet/if_ether.h> //ethernet and arp frame 
+#include <netinet/ip_icmp.h>
+#include <netinet/ip6.h>
+#include <netinet/tcp.h>
+#include <netinet/udp.h>
 
 // struct typedef  
 typedef struct settings settings;
@@ -25,6 +29,7 @@ typedef struct settings settings;
 #include "interfaces.h"
 
 #define INTERFACE_NAME_MAX 256
+#define ETH_HEAD 14
 
 /**
  * Setting struct declare how'll program behave 

@@ -13,23 +13,24 @@
 
 int main(int argc, char *argv[]) {
 
-    settings * sett;         // program settings structure  
-    pcap_t *sniff_int; // interface where packet will be sniffed 
+    settings sett;           // program settings structure  
+    pcap_t *sniff_int;       // interface where packet will be sniffed 
     char error_message[PCAP_ERRBUF_SIZE];
-    
-    // Create struct setting
-    sett = (settings *) malloc(sizeof(settings));
-    if (sett == NULL)    
-        goto error_malloc;
 
-    parse_args(argc, argv, sett);
-    debug_sett(sett);
+    // parse args and store them to settings struct 
+    parse_args(argc, argv, &sett);
+    debug_sett(&sett);
 
     // open interface for sniffing //exit program if error 
-    sniff_int = open_int(error_message, sett->interface);
+    sniff_int = open_int(error_message, sett.interface);
 
     // create filter ------> sniff 
-
+    
+    // sniff n packet
+    for (int i = 0; i < sett.n; i++){
+        //create_filter();
+        handle_frame(sniff_int); 
+    }
 
 
     // close interface
@@ -37,14 +38,6 @@ int main(int argc, char *argv[]) {
 
         
     return 0;
-
-
-error_malloc:
-    fprintf(stderr, "Malloc error\n");
-    return 1;
-
-
-
 }
 
 

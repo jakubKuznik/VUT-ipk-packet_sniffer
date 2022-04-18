@@ -40,6 +40,7 @@ bool interface_exist(char *int_name){
     // returns 0 on succes PCAP_ERROR on failure 
     if(pcap_findalldevs(&inter_list, error_message) == PCAP_ERROR){
         fprintf(stderr,"%s",error_message);
+        pcap_freealldevs(inter_list);
         return false;
     } 
     
@@ -47,6 +48,7 @@ bool interface_exist(char *int_name){
     while (inter_list != NULL){
         // interface find 
         if(strcmp(inter_list->name, int_name) == 0){
+            pcap_freealldevs(inter_list);
             return true;
         }  
         inter_list = inter_list->next;
