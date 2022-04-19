@@ -8,7 +8,6 @@
 #pragma once
 
 #include "ipk-sniffer.h"
-#include "interfaces.h"
 
 #define MAX_FRAME_SIZE 1518
 #define ETH_HEAD 14

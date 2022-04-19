@@ -7,7 +7,6 @@
 
 #pragma once
 
-#include <pcap.h>
 #include "ipk-sniffer.h"
 
 #define TIMEOUT 1000

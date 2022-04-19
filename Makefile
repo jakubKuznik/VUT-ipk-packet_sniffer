@@ -9,7 +9,7 @@ all: ipk-sniffer
 ipk-sniffer: interfaces.o args.o ipk-sniffer.o frame.o
 	gcc $(CFLAGS) interfaces.o args.o frame.o ipk-sniffer.o -o ipk-sniffer -lpcap
 
-ipk-sniffer.o: ipk-sniffer.c ipk-sniffer.h interfaces.h
+ipk-sniffer.o: ipk-sniffer.c ipk-sniffer.h 
 	gcc $(CFLAGS) -c ipk-sniffer.c -o ipk-sniffer.o -lpcal
 
 args.o: args.c args.h 

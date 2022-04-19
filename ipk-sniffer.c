@@ -10,6 +10,7 @@
 
 #include "ipk-sniffer.h"
 
+pcap_t *sniff_int;       // interface where packet will be sniffed 
 
 int main(int argc, char *argv[]) {
 

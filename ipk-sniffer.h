@@ -27,7 +27,6 @@
 // struct typedef  
 typedef struct settings settings;
 
-
 #include "args.h"
 #include "interfaces.h"
 #include "frame.h"
@@ -35,7 +34,6 @@ typedef struct settings settings;
 #define INTERFACE_NAME_MAX 256
 
 
-pcap_t *sniff_int;       // interface where packet will be sniffed 
 
 /**
  * Setting struct declare how'll program behave 
