@@ -14,8 +14,8 @@
 int main(int argc, char *argv[]) {
 
     settings sett;           // program settings structure  
-    pcap_t *sniff_int;       // interface where packet will be sniffed 
     char error_message[PCAP_ERRBUF_SIZE];
+    struct sigaction sigIntHandler;  // signal handler 
 
     // parse args and store them to settings struct 
     parse_args(argc, argv, &sett);
@@ -24,11 +24,15 @@ int main(int argc, char *argv[]) {
     // open interface for sniffing //exit program if error 
     sniff_int = open_int(error_message, sett.interface);
 
-    // create filter ------> sniff 
-    
+    // SIGINT signal handler
+    sigemptyset(&sigIntHandler.sa_mask);
+    sigIntHandler.sa_handler = free_resources;
+    sigIntHandler.sa_flags = 0;
+
     // sniff n packet
     for (int i = 0; i < sett.n; i++){
         //create_filter();
+        sigaction(SIGINT, &sigIntHandler, NULL);
         handle_frame(sniff_int); 
     }
 
@@ -40,6 +44,17 @@ int main(int argc, char *argv[]) {
     return 0;
 }
 
+
+/**
+ * Free resource after signal SIGINT  
+ */
+void free_resources(int sig_num){
+  
+    // close socket etc.
+    fprintf(stderr, "[signal %d] -> Process killed\n", sig_num);
+    pcap_close(sniff_int);
+    exit(1); 
+}
 
 // TODO smazat 
 void debug_sett(settings *sett){

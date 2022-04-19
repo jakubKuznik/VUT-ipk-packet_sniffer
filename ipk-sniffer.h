@@ -13,6 +13,7 @@
 #include <ctype.h>
 #include <sys/time.h>
 #include <time.h>
+#include <signal.h>
 
 // network libraries
 #include <pcap.h>
@@ -33,6 +34,9 @@ typedef struct settings settings;
 
 #define INTERFACE_NAME_MAX 256
 
+
+pcap_t *sniff_int;       // interface where packet will be sniffed 
+
 /**
  * Setting struct declare how'll program behave 
  */
@@ -51,3 +55,10 @@ struct settings{
 
 // todo smazat 
 void debug_sett(settings *sett);
+
+
+/**
+ * Free resource after signal SIGINT  
+ */
+void free_resources(int sig_num);
+  
