@@ -37,7 +37,6 @@ void handle_frame(pcap_t *sniff_int){
     struct pcap_pkthdr  pac_header;      // packet header
     struct ether_header *eth_header;     // ethernet  
     struct arphdr       *arp_header;     // arp header 
-    struct ip           *ip_header;    
     struct tcphdr       *tcp_header; 
     struct udphdr       *udp_header; 
     char                addres_string[INET_ADDRSTRLEN];
@@ -45,46 +44,93 @@ void handle_frame(pcap_t *sniff_int){
     frame = pcap_next(sniff_int, &pac_header);
     eth_header = (struct ether_header *)frame;
 
-    printf("----- frame --------\n");
     print_timestap(pac_header.ts);
     print_mac(eth_header->ether_shost, SRC);
     print_mac(eth_header->ether_dhost, DST);
     printf("frame lenght: %d\n",pac_header.len);
     
-    // check protocol IP include ICMP 
+    // ip + icmp 
     if (ntohs(eth_header->ether_type) == ETHERTYPE_IP){
-        printf(".... ip .....\n");
-        ip_header = (struct ip*)(frame + ETH_HEAD);
-
-        printf("tu: %s\n",frame);
-
-        printf("src IP: xxx\n");
-        printf("dst IP: xxx\n");
-        printf("src port: xxx\n");
-        printf("dst port: xxx\n");
+        print_ip_header(frame);
     }
+    // arp 
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP){
-        printf(".... arp ...\n");
         arp_header = (struct arphdr*)(frame + ETH_HEAD);
         print_arp(arp_header);
     }
+    // ipv6
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV6){
-        printf(".... ipv6 ....\n");
-        printf("src IP: xxx\n");
-        printf("dst IP: xxx\n");
-        printf("src port: xxx\n");
-        printf("dst port: xxx\n");
+        print_ipv6_header(frame);
     }
     else{
         fprintf(stderr,"... unknown ...\n");
     }
 
     print_frame_raw(frame, pac_header.len);
-
+    printf("\n");
     // icmp arp ip ipv6
     
 
-    printf("\noffset_vypsaných_bajtů:  výpis_bajtů_hexa výpis_bajtů_ASCII\n");
+}
+
+/**
+ * print inforamation about ip and icmp frame 
+ */
+void print_ip_header(const u_char *frame){
+    struct ip *ip_header;    
+    ip_header = (struct ip*)(frame + ETH_HEAD);
+    printf("src IP: %s\n", inet_ntoa(ip_header->ip_src));
+    printf("dst IP: %s\n", inet_ntoa(ip_header->ip_dst));
+
+    if (ip_header->ip_p == ICMP){
+        printf("####################### ICMP ##################\n");
+    }
+    else if (ip_header->ip_p == TCP){
+        printf("####################### TCP ##################\n");
+    }
+    else if (ip_header->ip_p == UDP){
+        printf("####################### UDP ##################\n");
+    }
+        
+    printf("@@@@ %d",ip_header->ip_p);
+        
+    printf("src port: xxx\n");
+    printf("dst port: xxx\n");
+}
+
+/**
+ * print information about icmp
+ */
+void print_icmp_header(){
+    printf("");
+}
+
+/**
+ * print information about icmp
+ */
+void print_tcp_header(){
+    printf("");
+}
+
+/**
+ * print information about icmp
+ */
+void print_udp_header(){
+    printf("");
+}
+
+/**
+ * print inforamation about ip and icmp frame 
+ */
+void print_ipv6_header(const u_char *frame){
+    struct ip *ipv6_header;    
+    ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
+        
+    printf(".... ipv6 ....\n");
+    printf("src IP: xxx\n");
+    printf("dst IP: xxx\n");
+    printf("src port: xxx\n");
+    printf("dst port: xxx\n");
 
 }
 
@@ -99,22 +145,48 @@ void handle_frame(pcap_t *sniff_int){
 void print_frame_raw(u_char *frame, int len_byte){
 
     int count = 0; // count bytes
-    int doubles = 0;
+    char real[16]; int j = 0;
     printf("\n0x%04x:  ",count);
     for (int i = 0; i < len_byte; i++){
-        doubles++;
-        printf("%x",frame[i]);
-        if(doubles == 1){
-            printf(" ");
-            doubles = 0;
-        }
+        printf("%02x ",frame[i]);
+        real[j++] = frame[i];
 
         count++;
-        if (count % 16 == 0){
-            printf("\n0x%04x:  ",count);
+        if (count % 16 == 0 && count > 0){
+            print_data(real, j);
+            if(i+1 != len_byte)
+                printf("\n0x%04x:  ",count);
+            j = 0; 
         }
     }
+    if (len_byte % 16 != 0){
+        int spaces = (16-j)*3;
+        for (int i = 0; i < spaces; i++)
+            printf(" ");
+        print_data(real, j);
+    }
+    printf("\n");
+
 }
+
+/**
+ * Print array to <=j 
+ * if non printable print .  
+ */
+void print_data(char *array ,int j){
+
+    for (int k = 0; k <= j; k++ ){
+        // non printable 
+        if (array[k] < 32){
+            printf(".");
+        } 
+        else{
+            printf("%c",array[k]);
+        }
+    }
+    return;
+}
+
 
 /**
  * print information about arp 

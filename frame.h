@@ -15,6 +15,9 @@
 
 #define SRC 0
 #define DST 1
+#define ICMP 1 // wiki ip paket sekce data 
+#define TCP 6
+#define UDP 17 
 
 /**
  * 
@@ -70,3 +73,10 @@ void print_arp(struct arphdr *arp_header);
  * 
  */
 void print_frame_raw(u_char *frame, int len_byte);
+
+
+/**
+ * Print array to <=j 
+ * if non printable print .  
+ */
+void print_data(char *array ,int j);
