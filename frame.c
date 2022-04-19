@@ -34,8 +34,9 @@
  */
 void handle_frame(pcap_t *sniff_int){
     const u_char        *frame;          // packet
-    struct pcap_pkthdr  pac_header;          // packet header
+    struct pcap_pkthdr  pac_header;      // packet header
     struct ether_header *eth_header;     // ethernet  
+    struct arphdr       *arp_header;     // arp header 
     struct ip           *ip_header;    
     struct tcphdr       *tcp_header; 
     struct udphdr       *udp_header; 
@@ -44,46 +45,80 @@ void handle_frame(pcap_t *sniff_int){
     frame = pcap_next(sniff_int, &pac_header);
     eth_header = (struct ether_header *)frame;
 
-    printf("\n");
+    printf("----- frame --------\n");
+    print_timestap(pac_header.ts);
+    print_mac(eth_header->ether_shost, SRC);
+    print_mac(eth_header->ether_dhost, DST);
+    printf("frame lenght: %d\n",pac_header.len);
+    
     // check protocol IP include ICMP 
     if (ntohs(eth_header->ether_type) == ETHERTYPE_IP){
-        fprintf(stderr,".... ip .....\n");
+        printf(".... ip .....\n");
+        ip_header = (struct ip*)(frame + ETH_HEAD);
+        printf("src IP: xxx\n");
+        printf("dst IP: xxx\n");
+        printf("src port: xxx\n");
+        printf("dst port: xxx\n");
     }
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP){
-        fprintf(stderr,".... arp ...\n");
+        printf(".... arp ...\n");
+        arp_header = (struct arphdr*)(frame + ETH_HEAD);
+        print_arp(arp_header);
     }
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV6){
-        fprintf(stderr,".... ipv6 ....\n");
+        printf(".... ipv6 ....\n");
+        printf("src IP: xxx\n");
+        printf("dst IP: xxx\n");
+        printf("src port: xxx\n");
+        printf("dst port: xxx\n");
     }
     else{
         fprintf(stderr,"... unknown ...\n");
     }
     
     // icmp arp ip ipv6
-    ip_header = (struct ip*)(frame + ETH_HEAD);
-
-
     
-    fprintf(stderr,"header: %d\n",pac_header.len);
-    fprintf(stderr,"ts: %ld\n",pac_header.ts.tv_usec);
-    fprintf(stderr,"caplen: %d\n",pac_header.caplen); //delka frameu v bytech
-    fprintf(stderr,"....\n");
-    fprintf(stderr,"%s\n",inet_ntop(AF_INET, &ip_header->ip_dst, addres_string, sizeof(addres_string)));
-    fprintf(stderr,"....\n");
-
-
-    print_timestap(pac_header.ts);
-    print_mac(eth_header->ether_shost, SRC);
-    print_mac(eth_header->ether_dhost, DST);
-    printf("frame lenght: %d\n",pac_header.len);
-    printf("src IP: xxx\n");
-    printf("dst IP: xxx\n");
-    printf("src port: xxx\n");
-    printf("dst port: xxx\n");
 
     printf("\noffset_vypsaných_bajtů:  výpis_bajtů_hexa výpis_bajtů_ASCII\n");
 
 }
+
+/**
+ * print information about arp 
+ */
+void print_arp(struct arphdr *arp_header){
+    printf("Message type: ");
+    switch (ntohs(arp_header->ar_op)){
+        case ARPOP_REQUEST:
+            printf("ARP request\n"); break;
+        case ARPOP_REPLY:
+            printf("ARP reply\n"); break;
+        case ARPOP_RREQUEST:
+            printf("RARP request\n"); break;
+        case ARPOP_RREPLY:
+            printf("RARP reply\n"); break;
+        case ARPOP_InREQUEST:
+            printf("InARP request\n"); break;
+        case ARPOP_InREPLY:
+            printf("InARP reply\n"); break;
+        case ARPOP_NAK:
+            printf("(ARM)ARP NAK\n"); break;
+        default:
+            printf("UNKNOWN ARP MESSAGE\n");
+    }
+    printf("Protocol type: ");
+    switch(ntohs(arp_header->ar_pro)){
+        case ETHERTYPE_IP:
+            printf("ipv4\n"); break;
+        case ETHERTYPE_IPV6:
+            printf("ipv6\n"); break;
+        default:
+            printf("Unknown protocol");
+    }
+
+
+}
+
 
 /**
  * Print mac addres from u_char ether[6] 

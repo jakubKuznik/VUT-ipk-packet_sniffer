@@ -34,7 +34,6 @@ typedef struct settings settings;
 #define INTERFACE_NAME_MAX 256
 
 
-
 /**
  * Setting struct declare how'll program behave 
  */

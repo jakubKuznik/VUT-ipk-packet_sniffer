@@ -52,3 +52,9 @@ void print_timestap(struct timeval ts);
  * set src_des to SRC or DST 
  */
 void print_mac(u_char ether[6], int src_des);
+
+
+/**
+ * print information about arp 
+ */
+void print_arp(struct arphdr *arp_header);
