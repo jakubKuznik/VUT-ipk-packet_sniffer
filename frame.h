@@ -11,6 +11,7 @@
 
 #define MAX_FRAME_SIZE 1518
 #define ETH_HEAD 14
+#define ARP_HEAD 28
 
 #define SRC 0
 #define DST 1
@@ -58,3 +59,14 @@ void print_mac(u_char ether[6], int src_des);
  * print information about arp 
  */
 void print_arp(struct arphdr *arp_header);
+
+
+/**
+ *  Print frame that has len_byte lenght
+ * 
+ * 0x0000:  00 19 d1 f7 be e5 00 04  96 1d 34 20 08 00 45 00  ........ ..4 ..
+ * 0x0010:  05 a0 52 5b 40 00 36 06  5b db d9 43 16 8c 93 e5  ..R[@.6. [..C....
+ * 0x0020:  0d 6d 00 50 0d fb 3d cd  0a ed 41 d1 a4 ff 50 18  .m.P..=. ..A...P.
+ * 
+ */
+void print_frame_raw(u_char *frame, int len_byte);
