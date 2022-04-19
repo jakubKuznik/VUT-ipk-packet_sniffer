@@ -67,7 +67,6 @@ void handle_frame(pcap_t *sniff_int){
         printf(".... arp ...\n");
         arp_header = (struct arphdr*)(frame + ETH_HEAD);
         print_arp(arp_header);
-        printf("tu: %s\n",frame);
     }
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV6){
         printf(".... ipv6 ....\n");
@@ -99,12 +98,22 @@ void handle_frame(pcap_t *sniff_int){
  */
 void print_frame_raw(u_char *frame, int len_byte){
 
-    int count = 0; // count to 16
+    int count = 0; // count bytes
+    int doubles = 0;
+    printf("\n0x%04x:  ",count);
     for (int i = 0; i < len_byte; i++){
-        printf("%c",frame[i]);
-    }
+        doubles++;
+        printf("%x",frame[i]);
+        if(doubles == 1){
+            printf(" ");
+            doubles = 0;
+        }
 
-    printf("datataaaaa %d",len_byte);
+        count++;
+        if (count % 16 == 0){
+            printf("\n0x%04x:  ",count);
+        }
+    }
 }
 
 /**
