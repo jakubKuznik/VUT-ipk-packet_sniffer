@@ -123,14 +123,17 @@ void print_udp_header(){
  * print inforamation about ip and icmp frame 
  */
 void print_ipv6_header(const u_char *frame){
-    struct ip *ipv6_header;    
+    struct ip6_hdr *ipv6_header;    
     ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
-        
+    char addr[INET6_ADDRSTRLEN];
+    //https://stackoverflow.com/questions/38848281/inet-ntop-printing-incorrect-ipv6-address
     printf(".... ipv6 ....\n");
-    printf("src IP: xxx\n");
-    printf("dst IP: xxx\n");
-    printf("src port: xxx\n");
-    printf("dst port: xxx\n");
+    inet_ntop(AF_INET6, &ipv6_header->ip6_src, addr, INET6_ADDRSTRLEN);
+    printf("src IP: %s\n", addr);
+    inet_ntop(AF_INET6, &ipv6_header->ip6_dst, addr, INET6_ADDRSTRLEN);
+    printf("dst IP: %s\n", addr);
+    //printf("src port: xxx\n");
+    //printf("dst port: xxx\n");
 
 }
 
