@@ -37,9 +37,7 @@ void handle_frame(pcap_t *sniff_int){
     struct pcap_pkthdr  pac_header;      // packet header
     struct ether_header *eth_header;     // ethernet  
     struct arphdr       *arp_header;     // arp header 
-    struct tcphdr       *tcp_header; 
-    struct udphdr       *udp_header; 
-    char                addres_string[INET_ADDRSTRLEN];
+    //char                addres_string[INET_ADDRSTRLEN];
 
     frame = pcap_next(sniff_int, &pac_header);
     eth_header = (struct ether_header *)frame;
@@ -56,11 +54,11 @@ void handle_frame(pcap_t *sniff_int){
     // arp 
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP){
         arp_header = (struct arphdr*)(frame + ETH_HEAD);
-        print_arp(arp_header);
+        //print_arp(arp_header);
     }
     // ipv6
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV6){
-        print_ipv6_header(frame);
+        //print_ipv6_header(frame);
     }
     else{
         fprintf(stderr,"... unknown ...\n");
@@ -78,45 +76,83 @@ void handle_frame(pcap_t *sniff_int){
  */
 void print_ip_header(const u_char *frame){
     struct ip *ip_header;    
+    struct icmp *icmp_header;    
     ip_header = (struct ip*)(frame + ETH_HEAD);
     printf("src IP: %s\n", inet_ntoa(ip_header->ip_src));
     printf("dst IP: %s\n", inet_ntoa(ip_header->ip_dst));
 
     if (ip_header->ip_p == ICMP){
-        printf("####################### ICMP ##################\n");
+        icmp_header = (struct icmp*)(frame + ETH_HEAD + IP_HEAD);
+        print_icmp_header(icmp_header);
+
     }
     else if (ip_header->ip_p == TCP){
         printf("####################### TCP ##################\n");
+        printf("src port: xxx\n");
+        printf("dst port: xxx\n");
     }
     else if (ip_header->ip_p == UDP){
         printf("####################### UDP ##################\n");
+        printf("src port: xxx\n");
+        printf("dst port: xxx\n");
     }
         
-    printf("@@@@ %d",ip_header->ip_p);
         
-    printf("src port: xxx\n");
-    printf("dst port: xxx\n");
 }
 
 /**
  * print information about icmp
  */
-void print_icmp_header(){
-    printf("");
+void print_icmp_header(struct icmp * icmp_header){
+
+    printf("Message type: ");
+    switch (icmp_header->icmp_type){
+        case ICMP_ECHOREPLY:
+            printf("ICMP Echo Reply\n"); break;
+        case ICMP_DEST_UNREACH: 
+            printf("ICMP Destination Unreachable\n"); break;
+        case ICMP_SOURCE_QUENCH: 
+            printf("ICMP Source Quench\n"); break;
+        case ICMP_REDIRECT: 
+            printf("ICMP Redirect (change route)\n"); break;
+        case ICMP_ECHO: 
+            printf("ICMP Echo Request\n"); break;
+        case ICMP_TIME_EXCEEDED: 
+            printf("ICMP Time Exceeded\n"); break;
+        case ICMP_PARAMETERPROB: 
+            printf("ICMP Parameter Problem\n"); break;
+        case ICMP_TIMESTAMP: 
+            printf("ICMP Timestamp Request\n"); break;
+        case ICMP_TIMESTAMPREPLY: 
+            printf("ICMP Timestamp Reply\n"); break;
+        case ICMP_INFO_REQUEST: 
+            printf("ICMP Information Request\n"); break;
+        case ICMP_INFO_REPLY: 
+            printf("ICMP Information Reply\n"); break;
+        case ICMP_ADDRESS: 
+            printf("ICMP Address Mask Request\n"); break;
+        case ICMP_ADDRESSREPLY: 
+            printf("ICMP Address Mask Reply\n"); break;
+        default:
+            printf("ICMP UNKNOWN MESSAGE TYPE\n"); break;
+    }
+    printf("Code: %d\n",icmp_header->icmp_code);
 }
 
 /**
  * print information about icmp
  */
 void print_tcp_header(){
-    printf("");
+    struct tcphdr       *tcp_header; 
+    printf(" ");
 }
 
 /**
  * print information about icmp
  */
 void print_udp_header(){
-    printf("");
+    struct udphdr       *udp_header; 
+    printf(" ");
 }
 
 /**
@@ -145,7 +181,7 @@ void print_ipv6_header(const u_char *frame){
  * 0x0020:  0d 6d 00 50 0d fb 3d cd  0a ed 41 d1 a4 ff 50 18  .m.P..=. ..A...P.
  * 
  */
-void print_frame_raw(u_char *frame, int len_byte){
+void print_frame_raw(const u_char *frame, int len_byte){
 
     int count = 0; // count bytes
     char real[16]; int j = 0;

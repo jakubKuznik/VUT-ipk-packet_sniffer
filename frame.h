@@ -12,6 +12,7 @@
 #define MAX_FRAME_SIZE 1518
 #define ETH_HEAD 14
 #define ARP_HEAD 28
+#define IP_HEAD 20
 
 #define SRC 0
 #define DST 1
@@ -72,7 +73,7 @@ void print_arp(struct arphdr *arp_header);
  * 0x0020:  0d 6d 00 50 0d fb 3d cd  0a ed 41 d1 a4 ff 50 18  .m.P..=. ..A...P.
  * 
  */
-void print_frame_raw(u_char *frame, int len_byte);
+void print_frame_raw(const u_char *frame, int len_byte);
 
 
 /**
@@ -80,3 +81,14 @@ void print_frame_raw(u_char *frame, int len_byte);
  * if non printable print .  
  */
 void print_data(char *array ,int j);
+
+/**
+ * print inforamation about ip and icmp frame 
+ */
+void print_ip_header(const u_char *frame);
+
+
+/**
+ * print information about icmp
+ */
+void print_icmp_header(struct icmp * icmp_header);
