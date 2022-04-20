@@ -46,29 +46,29 @@ void handle_frame(pcap_t *sniff_int){
     print_mac(eth_header->ether_shost, SRC);
     print_mac(eth_header->ether_dhost, DST);
     printf("frame lenght: %d\n",pac_header.len);
-    
-    // ip + icmp 
-    if (ntohs(eth_header->ether_type) == ETHERTYPE_IP){
-        print_ip_header(frame);
-    }
-    // arp 
-    else if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP){
-        arp_header = (struct arphdr*)(frame + ETH_HEAD);
-        print_arp(arp_header);
-    }
-    // ipv6
-    else if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV6){
-        print_ipv6_header(frame);
-    }
-    else{
-        fprintf(stderr,"... unknown ...\n");
+
+    // find frame type 
+    switch (ntohs(eth_header->ether_type)){
+        // ip + icmp
+        case ETHERTYPE_IP:
+            //print_ip_header(frame);
+            break;
+        // arp        
+        case ETHERTYPE_ARP:
+            arp_header = (struct arphdr*)(frame + ETH_HEAD);
+            //print_arp(arp_header);
+            break;
+        // ipv6
+        case ETHERTYPE_IPV6:
+            print_ipv6_header(frame);
+            break;
+        default:
+            fprintf(stderr,"... unknown ...\n");
+
     }
 
     print_frame_raw(frame, pac_header.len);
     printf("\n");
-    // icmp arp ip ipv6
-    
-
 }
 
 /**
@@ -83,23 +83,25 @@ void print_ip_header(const u_char *frame){
     printf("src IP: %s\n", inet_ntoa(ip_header->ip_src));
     printf("dst IP: %s\n", inet_ntoa(ip_header->ip_dst));
 
-    // icmp 
-    if (ip_header->ip_p == ICMP){
-        icmp_header = (struct icmp*)(frame + ETH_HEAD + IP_HEAD);
-        print_icmp_header(icmp_header);
+    switch (ip_header->ip_p){
+        // icmp
+        case ICMP:
+            icmp_header = (struct icmp*)(frame + ETH_HEAD + IP_HEAD);
+            print_icmp_header(icmp_header);
+            break;
+        // tcp
+        case TCP:
+            tcp_header = (struct tcphdr*)(frame + ETH_HEAD + IP_HEAD);
+            print_tcp_header(tcp_header);
+            break;
+        // udp 
+        case UDP:
+            udp_header = (struct udphdr*)(frame + ETH_HEAD + IP_HEAD);
+            print_udp_header(udp_header);
+            break;
+        default:
+            break;
     }
-    // tcp
-    else if (ip_header->ip_p == TCP){
-        tcp_header = (struct tcphdr*)(frame + ETH_HEAD + IP_HEAD);
-        print_tcp_header(tcp_header);
-    }
-    // udp 
-    else if (ip_header->ip_p == UDP){
-        udp_header = (struct udphdr*)(frame + ETH_HEAD + IP_HEAD);
-        print_udp_header(udp_header);
-    }
-        
-        
 }
 
 /**
@@ -167,16 +169,40 @@ void print_udp_header(struct udphdr *udp_header){
 void print_ipv6_header(const u_char *frame){
     struct ip6_hdr *ipv6_header;    
     ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
+    struct ip      *ip_header;    
+    struct icmp    *icmp_header;    
+    struct tcphdr  *tcp_header; 
+    struct udphdr  *udp_header; 
     char addr[INET6_ADDRSTRLEN];
     //https://stackoverflow.com/questions/38848281/inet-ntop-printing-incorrect-ipv6-address
-    printf(".... ipv6 ....\n");
+    
+    // src ip 
     inet_ntop(AF_INET6, &ipv6_header->ip6_src, addr, INET6_ADDRSTRLEN);
     printf("src IP: %s\n", addr);
+    
+    // dst ip 
     inet_ntop(AF_INET6, &ipv6_header->ip6_dst, addr, INET6_ADDRSTRLEN);
     printf("dst IP: %s\n", addr);
-    //printf("src port: xxx\n");
-    //printf("dst port: xxx\n");
-
+    
+    switch (ipv6_header->ip6_ctlun.ip6_un1.ip6_un1_nxt){
+        // icmp
+        case ICMP:
+            icmp_header = (struct icmp*)(frame + ETH_HEAD + IPV6_HEAD);
+            print_icmp_header(icmp_header);
+            break;
+        // tcp
+        case TCP:
+            tcp_header = (struct tcphdr*)(frame + ETH_HEAD + IPV6_HEAD);
+            print_tcp_header(tcp_header);
+            break;
+        // udp 
+        case UDP:
+            udp_header = (struct udphdr*)(frame + ETH_HEAD + IPV6_HEAD);
+            print_udp_header(udp_header);
+            break;
+        default:
+            break;
+    }
 }
 
 /**
@@ -191,22 +217,38 @@ void print_frame_raw(const u_char *frame, int len_byte){
 
     int count = 0; // count bytes
     char real[16]; int j = 0;
+    int space_counter = 0;
+
+
+    // 0x0000:
     printf("\n0x%04x:  ",count);
+    // 00 19 d1 f7 be e5 00 04  96 1d 34 20 08 00 45 00
     for (int i = 0; i < len_byte; i++){
+        space_counter++;
+
+        if(space_counter == 9){
+            printf(" "); space_counter = 0;
+        }
+
         printf("%02x ",frame[i]);
         real[j++] = frame[i];
-
         count++;
+
+        // ........ ..4 ..
         if (count % 16 == 0 && count > 0){
             print_data(real, j);
-            if(i+1 != len_byte)
+            if(i+1 != len_byte){
                 printf("\n0x%04x:  ",count);
+                space_counter = 0;
+            }
             j = 0; 
         }
     }
     if (len_byte % 16 != 0){
         int spaces = (16-j)*3;
         for (int i = 0; i < spaces; i++)
+            printf(" ");
+        if(j < 9)
             printf(" ");
         print_data(real, j-1);
     }
@@ -219,8 +261,14 @@ void print_frame_raw(const u_char *frame, int len_byte){
  * if non printable print .  
  */
 void print_data(char *array ,int j){
+    int space_counter = 0;
 
     for (int k = 0; k <= j; k++ ){
+        space_counter++;
+
+        if(space_counter == 9){
+            printf(" "); space_counter = 0;
+        }
         // non printable 
         if (array[k] < 32){
             printf(".");

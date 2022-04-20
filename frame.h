@@ -13,6 +13,7 @@
 #define ETH_HEAD 14
 #define ARP_HEAD 28
 #define IP_HEAD 20
+#define IPV6_HEAD 40
 
 #define SRC 0
 #define DST 1
