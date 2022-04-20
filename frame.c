@@ -54,11 +54,11 @@ void handle_frame(pcap_t *sniff_int){
     // arp 
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_ARP){
         arp_header = (struct arphdr*)(frame + ETH_HEAD);
-        //print_arp(arp_header);
+        print_arp(arp_header);
     }
     // ipv6
     else if (ntohs(eth_header->ether_type) == ETHERTYPE_IPV6){
-        //print_ipv6_header(frame);
+        print_ipv6_header(frame);
     }
     else{
         fprintf(stderr,"... unknown ...\n");
@@ -75,26 +75,28 @@ void handle_frame(pcap_t *sniff_int){
  * print inforamation about ip and icmp frame 
  */
 void print_ip_header(const u_char *frame){
-    struct ip *ip_header;    
-    struct icmp *icmp_header;    
+    struct ip      *ip_header;    
+    struct icmp    *icmp_header;    
+    struct tcphdr  *tcp_header; 
+    struct udphdr  *udp_header; 
     ip_header = (struct ip*)(frame + ETH_HEAD);
     printf("src IP: %s\n", inet_ntoa(ip_header->ip_src));
     printf("dst IP: %s\n", inet_ntoa(ip_header->ip_dst));
 
+    // icmp 
     if (ip_header->ip_p == ICMP){
         icmp_header = (struct icmp*)(frame + ETH_HEAD + IP_HEAD);
         print_icmp_header(icmp_header);
-
     }
+    // tcp
     else if (ip_header->ip_p == TCP){
-        printf("####################### TCP ##################\n");
-        printf("src port: xxx\n");
-        printf("dst port: xxx\n");
+        tcp_header = (struct tcphdr*)(frame + ETH_HEAD + IP_HEAD);
+        print_tcp_header(tcp_header);
     }
+    // udp 
     else if (ip_header->ip_p == UDP){
-        printf("####################### UDP ##################\n");
-        printf("src port: xxx\n");
-        printf("dst port: xxx\n");
+        udp_header = (struct udphdr*)(frame + ETH_HEAD + IP_HEAD);
+        print_udp_header(udp_header);
     }
         
         
@@ -140,19 +142,23 @@ void print_icmp_header(struct icmp * icmp_header){
 }
 
 /**
- * print information about icmp
+ * print information about TCP
  */
-void print_tcp_header(){
-    struct tcphdr       *tcp_header; 
-    printf(" ");
+void print_tcp_header(struct tcphdr *tcp_header){
+    printf("src port: %d\n",ntohs(tcp_header->th_sport));
+    printf("dst port: %d\n",ntohs(tcp_header->th_dport));
+    printf("seq num raw: %u\n",ntohl(tcp_header->th_seq));
+    printf("ack num raw: %u\n",ntohl(tcp_header->th_ack));
+    printf("Protocol: TCP\n");
 }
 
 /**
- * print information about icmp
+ * print information about UDP
  */
-void print_udp_header(){
-    struct udphdr       *udp_header; 
-    printf(" ");
+void print_udp_header(struct udphdr *udp_header){
+    printf("src port: %d\n",ntohs(udp_header->uh_sport));
+    printf("dst port: %d\n",ntohs(udp_header->uh_dport));
+    printf("Protocol: UDP\n");
 }
 
 /**
@@ -202,7 +208,7 @@ void print_frame_raw(const u_char *frame, int len_byte){
         int spaces = (16-j)*3;
         for (int i = 0; i < spaces; i++)
             printf(" ");
-        print_data(real, j);
+        print_data(real, j-1);
     }
     printf("\n");
 

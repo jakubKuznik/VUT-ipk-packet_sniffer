@@ -92,3 +92,20 @@ void print_ip_header(const u_char *frame);
  * print information about icmp
  */
 void print_icmp_header(struct icmp * icmp_header);
+
+
+/**
+ * print information about TCP
+ */
+void print_tcp_header(struct tcphdr *tcp_header);
+
+
+/**
+ * print information about UDP
+ */
+void print_udp_header(struct udphdr *udp_header);
+
+/**
+ * print inforamation about ip and icmp frame 
+ */
+void print_ipv6_header(const u_char *frame);
