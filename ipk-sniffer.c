@@ -32,17 +32,18 @@ int main(int argc, char *argv[]) {
 
     // sniff n packet
     for (int i = 0; i < sett.n; i++){
-        //create_filter();
         sigaction(SIGINT, &sigIntHandler, NULL);
-        handle_frame(sniff_int); 
+        // do all the frame functions most important part of code !!!  
+        // false == packet was skipped (due to filter or unknown)
+        if (handle_frame(sniff_int, &sett) == false){
+            i--;
+        } 
     }
-
 
     // close interface
     pcap_close(sniff_int);
 
-        
-    return 0;
+    return 0; // success
 }
 
 

@@ -15,6 +15,10 @@
 #define IP_HEAD 20
 #define IPV6_HEAD 40
 
+#define IP 0
+#define IPV6 1
+
+
 #define SRC 0
 #define DST 1
 #define ICMP 1 // wiki ip paket sekce data 
@@ -46,7 +50,7 @@
  * 0x0050:  4e 31 c5 5c 5f b5 37 ed  bd 66 ee ea b1 2b 0c 26  N1.\_.7. .f...+.&
  * 0x0060:  98 9d b8 c8 00 80 0c 57  61 87 b0 cd 08 80 00 a1  .......W a.......
  */
-void handle_frame(pcap_t *sniff_int);
+bool handle_frame(pcap_t *sniff_int, struct settings *sett);
 
 /**
  * Print time in RFC
@@ -85,8 +89,22 @@ void print_data(char *array ,int j);
 
 /**
  * print inforamation about ip and icmp frame 
+ * 
+ * calls: print_icmp_header()
+ *        print_tcp_header()
+ *        print_udp_header()
+ * 
  */
 void print_ip_header(const u_char *frame);
+
+/**
+ * print inforamation about ipv6 and icmp frame  
+ * 
+ * calls: print_icmp_header()
+ *        print_tcp_header()
+ *        print_udp_header()
+ */
+void print_ipv6_header(const u_char *frame);
 
 
 /**
@@ -106,7 +124,44 @@ void print_tcp_header(struct tcphdr *tcp_header);
  */
 void print_udp_header(struct udphdr *udp_header);
 
+
 /**
- * print inforamation about ip and icmp frame 
+ * Print basic info about frame all the frames use this function.
  */
-void print_ipv6_header(const u_char *frame);
+void basic_info_frame_print(struct pcap_pkthdr *pac_header, 
+                            struct ether_header *eth_header);
+
+
+/**
+ * return TCP, UDP, ICMP or -1
+ */
+int get_ip_type(const u_char *frame);
+
+/**
+ * return TCP, UDP, ICMP or -1
+ */
+int get_ipv6_type(const u_char *frame);
+
+/**
+ * return port number of TCP 
+ * 
+ *  direction could be DST or SRC 
+ */
+int get_port_tcp(struct tcphdr *tcp_header ,char direction);
+
+/**
+ * return port number of UDP
+ *
+ *  direction could be DST or SRC 
+ */
+int get_port_udp(struct udphdr *udp_header ,char direction);
+
+/**
+ * return true if packet can be processed 
+ * return false if packet has to be skipped 
+ * based on sett
+ * 
+ * version is IP or IPV6
+ *  
+ */
+bool filter(const u_char *frame ,struct settings *sett, int version);

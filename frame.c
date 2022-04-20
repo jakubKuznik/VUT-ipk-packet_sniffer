@@ -6,7 +6,6 @@
 
 #include "frame.h"
 
-
 /**
  * 
  * Read one frame and print it in 
@@ -23,7 +22,9 @@
  * dst IP: 10.10.10.56
  * src port: 4093
  * dst port: 80
-
+ * 
+ * return false if packet skip
+ *
  * 0x0000:  00 19 d1 f7 be e5 00 04  96 1d 34 20 08 00 45 00  ........ ..4 ..
  * 0x0010:  05 a0 52 5b 40 00 36 06  5b db d9 43 16 8c 93 e5  ..R[@.6. [..C....
  * 0x0020:  0d 6d 00 50 0d fb 3d cd  0a ed 41 d1 a4 ff 50 18  .m.P..=. ..A...P.
@@ -32,54 +33,77 @@
  * 0x0050:  4e 31 c5 5c 5f b5 37 ed  bd 66 ee ea b1 2b 0c 26  N1.\_.7. .f...+.&
  * 0x0060:  98 9d b8 c8 00 80 0c 57  61 87 b0 cd 08 80 00 a1  .......W a.......
  */
-void handle_frame(pcap_t *sniff_int){
-    const u_char        *frame;          // packet
-    struct pcap_pkthdr  pac_header;      // packet header
-    struct ether_header *eth_header;     // ethernet  
-    struct arphdr       *arp_header;     // arp header 
-    //char                addres_string[INET_ADDRSTRLEN];
+bool handle_frame(pcap_t *sniff_int, struct settings *sett){
+    
+    const u_char        *frame;             // packet
+    struct pcap_pkthdr  pac_header;        // packet header
+    struct ether_header *eth_header;        // ethernet  
+    struct arphdr       *arp_header;        // arp header 
+
 
     frame = pcap_next(sniff_int, &pac_header);
     eth_header = (struct ether_header *)frame;
 
-    print_timestap(pac_header.ts);
-    print_mac(eth_header->ether_shost, SRC);
-    print_mac(eth_header->ether_dhost, DST);
-    printf("frame lenght: %d\n",pac_header.len);
 
     // find frame type 
     switch (ntohs(eth_header->ether_type)){
         // ip + icmp
         case ETHERTYPE_IP:
-            //print_ip_header(frame);
+            // filter check 
+            if (filter(frame, sett, IP) == false)
+                return false;
+
+            basic_info_frame_print(&pac_header, eth_header);
+            print_ip_header(frame);
             break;
         // arp        
         case ETHERTYPE_ARP:
+            // filter check 
+            if (sett->arp == false) // arp not enabled
+                return false; 
+
             arp_header = (struct arphdr*)(frame + ETH_HEAD);
-            //print_arp(arp_header);
+            basic_info_frame_print(&pac_header, eth_header);
+            print_arp(arp_header);
             break;
         // ipv6
         case ETHERTYPE_IPV6:
+            // filter check 
+            if (filter(frame, sett, IPV6) == false)
+                return false;
+
+            basic_info_frame_print(&pac_header, eth_header);
             print_ipv6_header(frame);
             break;
-        default:
-            fprintf(stderr,"... unknown ...\n");
+        default: //skip unknown protocol 
+            return false;
 
     }
 
     print_frame_raw(frame, pac_header.len);
     printf("\n");
+    return true;
 }
+
+
 
 /**
  * print inforamation about ip and icmp frame 
+ * 
+ * calls: print_icmp_header()
+ *        print_tcp_header()
+ *        print_udp_header()
+ * 
  */
 void print_ip_header(const u_char *frame){
+    // header structs 
     struct ip      *ip_header;    
     struct icmp    *icmp_header;    
     struct tcphdr  *tcp_header; 
     struct udphdr  *udp_header; 
+
     ip_header = (struct ip*)(frame + ETH_HEAD);
+
     printf("src IP: %s\n", inet_ntoa(ip_header->ip_src));
     printf("dst IP: %s\n", inet_ntoa(ip_header->ip_dst));
 
@@ -167,14 +191,17 @@ void print_udp_header(struct udphdr *udp_header){
  * print inforamation about ip and icmp frame 
  */
 void print_ipv6_header(const u_char *frame){
+
+    // headers
     struct ip6_hdr *ipv6_header;    
-    ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
-    struct ip      *ip_header;    
     struct icmp    *icmp_header;    
     struct tcphdr  *tcp_header; 
     struct udphdr  *udp_header; 
-    char addr[INET6_ADDRSTRLEN];
+    
+    char addr[INET6_ADDRSTRLEN]; // string for ipv6 addres 
     //https://stackoverflow.com/questions/38848281/inet-ntop-printing-incorrect-ipv6-address
+    
+    ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
     
     // src ip 
     inet_ntop(AF_INET6, &ipv6_header->ip6_src, addr, INET6_ADDRSTRLEN);
@@ -206,7 +233,7 @@ void print_ipv6_header(const u_char *frame){
 }
 
 /**
- *  Print frame that has len_byte lenght
+ *  Print frame that has len_byte lenght in format below:
  * 
  * 0x0000:  00 19 d1 f7 be e5 00 04  96 1d 34 20 08 00 45 00  ........ ..4 ..
  * 0x0010:  05 a0 52 5b 40 00 36 06  5b db d9 43 16 8c 93 e5  ..R[@.6. [..C....
@@ -280,7 +307,6 @@ void print_data(char *array ,int j){
     return;
 }
 
-
 /**
  * print information about arp 
  */
@@ -316,7 +342,6 @@ void print_arp(struct arphdr *arp_header){
 
 }
 
-
 /**
  * Print mac addres from u_char ether[6] 
  * set src_des to SRC or DST 
@@ -336,8 +361,6 @@ void print_mac(u_char ether[6], int src_des){
     (unsigned char) ether[4], (unsigned char) ether[5]);
 
 }
-
-
 
 /**
  * Print time in RFC
@@ -385,4 +408,174 @@ void print_timestap(struct timeval ts){
     }
         
     printf("\n");
+}
+
+/**
+ * Print basic info about frame all the frames use this function.
+ */
+void basic_info_frame_print(struct pcap_pkthdr *pac_header, 
+                            struct ether_header *eth_header){
+    
+    print_timestap(pac_header->ts);
+    print_mac(eth_header->ether_shost, SRC);
+    print_mac(eth_header->ether_dhost, DST);
+    printf("frame lenght: %d\n",pac_header->len);
+}
+
+/**
+ * return TCP, UDP, ICMP or -1
+ */
+int get_ip_type(const u_char *frame){
+    struct ip      *ip_header;    
+    ip_header = (struct ip*)(frame + ETH_HEAD);
+    
+    switch (ip_header->ip_p){
+        case ICMP:
+            return ICMP;
+        case TCP:
+            return TCP;
+        case UDP:
+            return UDP;
+        default:
+            return -1;
+    }
+}
+
+/**
+ * return TCP, UDP, ICMP or -1
+ */
+int get_ipv6_type(const u_char *frame){
+    struct ip6_hdr *ipv6_header;    
+    ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
+    
+    switch (ipv6_header->ip6_ctlun.ip6_un1.ip6_un1_nxt){
+        case ICMP:
+            return ICMP;
+        case TCP:
+            return TCP;
+        case UDP:
+            return UDP;
+        default:
+            return -1;
+    }
+}
+
+/**
+ * return port number of TCP 
+ * 
+ *  direction could be DST or SRC 
+ */
+int get_port_tcp(struct tcphdr *tcp_header ,char direction){
+    if (direction == SRC)
+        return ntohs(tcp_header->th_sport);
+    else if (direction == DST)
+        return ntohs(tcp_header->th_dport);
+    return -1;
+}
+ 
+/**
+ * return port number of UDP
+ *
+ *  direction could be DST or SRC 
+ */
+int get_port_udp(struct udphdr *udp_header ,char direction){
+    if (direction == SRC)
+        return ntohs(udp_header->uh_sport);
+    else if (direction == DST)
+        return ntohs(udp_header->uh_dport);
+    return -1;
+}
+
+/**
+ * return true if packet can be processed 
+ * return false if packet has to be skipped 
+ * based on sett
+ * 
+ * version is IP or IPV6
+ *  
+ */
+bool filter(const u_char *frame ,struct settings *sett, int version){
+    int type = 0;   // could be icmp, tcp, udp, none 
+    int port = 0;
+    
+    if (version == IP)
+        type = get_ip_type(frame);
+    else if (version == IPV6)
+        type = get_ipv6_type(frame);
+
+    switch (type){
+        case ICMP:
+            // icmp enabled 
+            if (sett->icmp == false)
+                return false;
+            break;
+        // ####################### TCP 
+        case TCP:
+            // tcp enabled
+            if (sett->tcp == false)
+                return false;
+            // match port 
+            if (sett->port == -1) //all ports enabled
+                break;
+            else{ // -p
+                
+                if (version == IP)
+                    port = get_port_tcp((struct tcphdr*)(frame + ETH_HEAD + IP_HEAD), SRC);
+                else if (version == IPV6)
+                    port = get_port_tcp((struct tcphdr*)(frame + ETH_HEAD + IPV6_HEAD), SRC);
+
+                // src port checking  
+                if(sett->port == port)
+                    break;
+                
+                if (version == IP)
+                    port = get_port_tcp((struct tcphdr*)(frame + ETH_HEAD + IP_HEAD), DST);
+                else if (version == IPV6)
+                    port = get_port_tcp((struct tcphdr*)(frame + ETH_HEAD + IPV6_HEAD), DST);
+                
+                // dst port checking 
+                if(sett->port == port)
+                    break;
+
+                return false; // no match --- skip packet  
+            }
+            break;
+        // ################## UDP 
+        case UDP:
+            // udp enabled
+            if (sett->udp == false)
+                return false;
+            
+            // match port 
+            if (sett->port == -1) //all ports enabled
+                break;
+            else{ // -p
+                
+                if (version == IP)
+                    port = get_port_tcp((struct tcphdr*)(frame + ETH_HEAD + IP_HEAD), SRC);
+                else if (version == IPV6)
+                    port = get_port_tcp((struct tcphdr*)(frame + ETH_HEAD + IPV6_HEAD), SRC);
+
+                // src port checking  
+                if(sett->port == port)
+                    break;
+                
+                if (version == IP)
+                    port = get_port_udp((struct udphdr*)(frame + ETH_HEAD + IP_HEAD), DST);
+                else if (version == IPV6)
+                    port = get_port_udp((struct udphdr*)(frame + ETH_HEAD + IPV6_HEAD), DST);
+                
+                // dst port checking 
+                if(sett->port == port)
+                    break;
+
+                return false; // no match --- skip packet  
+            }
+            
+
+            break;
+        default:
+            return false;
+    }
+    return true;
 }
