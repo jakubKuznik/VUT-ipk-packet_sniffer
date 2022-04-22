@@ -20,7 +20,6 @@ int main(int argc, char *argv[]) {
 
     // parse args and store them to settings struct 
     parse_args(argc, argv, &sett);
-    debug_sett(&sett);
 
     // open interface for sniffing //exit program if error 
     sniff_int = open_int(error_message, sett.interface);
@@ -46,7 +45,6 @@ int main(int argc, char *argv[]) {
     return 0; // success
 }
 
-
 /**
  * Free resource after signal SIGINT  
  */
@@ -56,15 +54,4 @@ void free_resources(int sig_num){
     fprintf(stderr, "[signal %d] -> Process killed\n", sig_num);
     pcap_close(sniff_int);
     exit(1); 
-}
-
-// TODO smazat 
-void debug_sett(settings *sett){
-    fprintf(stderr,"...n:         %d\n",sett->n );
-    fprintf(stderr,"...arp:       %d\n",sett->arp);
-    fprintf(stderr,"...icmp:      %d\n",sett->icmp);
-    fprintf(stderr,"...udp:       %d\n",sett->udp);
-    fprintf(stderr,"...tcp        %d\n", sett->tcp);
-    fprintf(stderr,"...interface: %s\n", sett->interface);
-    fprintf(stderr,"...port:      %d\n", sett->port);
 }

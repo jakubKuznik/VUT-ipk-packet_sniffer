@@ -76,10 +76,7 @@ pcap_t *open_int(char *err, char *name){
     if(pcap_datalink(sniff_int) != DLT_EN10MB)
         goto error_ether_frame;
 
-
-
     return sniff_int;
-
 
 error_interface:
     fprintf(stderr, "Cannot open interface\n");

@@ -6,6 +6,7 @@ Jednoduchá terminálová aplikace packet sniffer, přesněji Frame sniffer. Odc
 
 - Sniffer obsahuje podrobnou dokumentaci o jeho fungování: manual.pdf
 
+
 ### Build 
 
 ```sh

@@ -50,9 +50,6 @@ struct settings{
                          // -1 if all ports 
 };
 
-// todo smazat 
-void debug_sett(settings *sett);
-
 
 /**
  * Free resource after signal SIGINT  

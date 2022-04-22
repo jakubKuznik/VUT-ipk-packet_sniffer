@@ -40,10 +40,8 @@ bool handle_frame(pcap_t *sniff_int, struct settings *sett){
     struct ether_header *eth_header;        // ethernet  
     struct arphdr       *arp_header;        // arp header 
 
-
     frame = pcap_next(sniff_int, &pac_header);
     eth_header = (struct ether_header *)frame;
-
 
     // find frame type 
     switch (ntohs(eth_header->ether_type)){
@@ -84,8 +82,6 @@ bool handle_frame(pcap_t *sniff_int, struct settings *sett){
     printf("\n");
     return true;
 }
-
-
 
 /**
  * print inforamation about ip and icmp frame 
@@ -189,6 +185,9 @@ void print_udp_header(struct udphdr *udp_header){
 
 /**
  * print inforamation about ip and icmp frame 
+ * 
+ * I used code to convert ipv6 to string  
+ * 
  */
 void print_ipv6_header(const u_char *frame){
 
@@ -199,7 +198,6 @@ void print_ipv6_header(const u_char *frame){
     struct udphdr  *udp_header; 
     
     char addr[INET6_ADDRSTRLEN]; // string for ipv6 addres 
-    //https://stackoverflow.com/questions/38848281/inet-ntop-printing-incorrect-ipv6-address
     
     ipv6_header = (struct ip6_hdr*)(frame + ETH_HEAD);
     
@@ -245,7 +243,6 @@ void print_frame_raw(const u_char *frame, int len_byte){
     int count = 0; // count bytes
     char real[16]; int j = 0;
     int space_counter = 0;
-
 
     // 0x0000:
     printf("\n0x%04x:  ",count);
@@ -364,8 +361,12 @@ void print_mac(u_char ether[6], int src_des){
 
 /**
  * Print time in RFC
- *  inspiration from:
- *    https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc 
+ * 
+ * There was a code used from: 
+ * 
+ * [1] rfc3339.c · GitHub. [online]. Copyright © 2022 GitHub, Inc. [cit. 22.04.2022]. Dostupné z: https://gist.github.com/jedisct1/b7812ae9b4850e0053a21c922ed3e9dc
+ * MIT licence 
+ * 
  */
 void print_timestap(struct timeval ts){
     time_t time = (time_t)ts.tv_sec; 
