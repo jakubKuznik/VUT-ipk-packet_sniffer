@@ -22,7 +22,7 @@ make
 
 ## Spuštění 
 ```sh
-./ipk-sniffer [-i rozhraní | --interface rozhraní] {-p ­­port} {[--tcp|-t] [--udp|-u] [--arp] [--icmp] } {-n num}
+./ipk-sniffer [-i rozhraní | --interface rozhraní] {-p ­­port} {[--tcp|-t] [--udp|-u] [--arp] [--icmp] } {-n num} {-h | --help}
 ```
 - V případě že není vybrané síťové rozhraní, tak program vypíše veškeré síťové rozhraní na standardní výstup. 
 - Není-li zvolen filtr na protokol, tak se vypisují veškeré protokoly, které sniffer umí rozpoznat.
