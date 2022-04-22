@@ -185,9 +185,6 @@ void print_udp_header(struct udphdr *udp_header){
 
 /**
  * print inforamation about ip and icmp frame 
- * 
- * I used code to convert ipv6 to string  
- * 
  */
 void print_ipv6_header(const u_char *frame){
 
